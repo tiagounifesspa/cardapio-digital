@@ -9,7 +9,7 @@ import { SuccessPage } from './pages/SuccessPage'
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/cardapio-digital">
       <Routes>
         {/* Redirect root to default menu */}
         <Route path="/" element={<Navigate to="/confeitaria-doce-mel" replace />} />
