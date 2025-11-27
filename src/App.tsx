@@ -12,7 +12,7 @@ function App() {
     <BrowserRouter basename="/cardapio-digital">
       <Routes>
         {/* Redirect root to default menu */}
-        <Route path="/" element={<Navigate to="/confeitaria-doce-mel" replace />} />
+        <Route path="/" element={<Navigate to="/confeitaria-pro" replace />} />
         
         {/* Menu routes with slug */}
         <Route path="/:slug" element={<MenuPage />} />
