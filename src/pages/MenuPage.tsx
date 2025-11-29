@@ -1,6 +1,21 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Search, MapPin, Truck, Package, Sparkles, X } from 'lucide-react'
+import { 
+  Search, 
+  MapPin, 
+  Truck, 
+  Package, 
+  Sparkles, 
+  X,
+  Cake,
+  Candy,
+  Cherry,
+  IceCream,
+  Croissant,
+  Coffee,
+  Grid3X3,
+  LucideIcon
+} from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Header } from '../components/Header'
 import { ProductCard } from '../components/ProductCard'
@@ -8,15 +23,15 @@ import { CartButton } from '../components/CartButton'
 import { useCartStore } from '../store/cartStore'
 import { Business, MenuItem } from '../types'
 
-// Ícones das categorias
-const categoryIcons: Record<string, string> = {
-  'bolos': '🎂',
-  'doces': '🍬',
-  'tortas': '🥧',
-  'sobremesas': '🍮',
-  'salgados': '🥐',
-  'bebidas': '🥤',
-  'outros': '📦'
+// Ícones das categorias com componentes Lucide
+const categoryConfig: Record<string, { icon: LucideIcon; color: string; bgColor: string }> = {
+  'bolos': { icon: Cake, color: 'text-pink-500', bgColor: 'bg-pink-100' },
+  'doces': { icon: Candy, color: 'text-purple-500', bgColor: 'bg-purple-100' },
+  'tortas': { icon: Cherry, color: 'text-red-500', bgColor: 'bg-red-100' },
+  'sobremesas': { icon: IceCream, color: 'text-amber-500', bgColor: 'bg-amber-100' },
+  'salgados': { icon: Croissant, color: 'text-orange-500', bgColor: 'bg-orange-100' },
+  'bebidas': { icon: Coffee, color: 'text-emerald-500', bgColor: 'bg-emerald-100' },
+  'outros': { icon: Grid3X3, color: 'text-gray-500', bgColor: 'bg-gray-100' }
 }
 
 export function MenuPage() {
@@ -134,8 +149,8 @@ export function MenuPage() {
     return labels[category] || category.charAt(0).toUpperCase() + category.slice(1)
   }
 
-  const getCategoryIcon = (category: string) => {
-    return categoryIcons[category] || '📦'
+  const getCategoryConfig = (category: string) => {
+    return categoryConfig[category] || categoryConfig['outros']
   }
 
   if (loading) {
@@ -154,7 +169,9 @@ export function MenuPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
         <div className="glass rounded-3xl p-8 text-center max-w-sm">
-          <div className="text-6xl mb-4">😕</div>
+          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+            <X className="w-10 h-10 text-red-400" />
+          </div>
           <h1 className="text-xl font-bold text-gray-800 mb-2">Ops!</h1>
           <p className="text-gray-500">{error}</p>
         </div>
@@ -236,23 +253,27 @@ export function MenuPage() {
                   : 'bg-white/80 text-gray-600 hover:bg-white hover:shadow-md border border-pink-100'
               }`}
             >
-              <span className="text-base">✨</span>
+              <Sparkles className={`w-4 h-4 ${selectedCategory === 'all' ? 'text-white' : 'text-pink-400'}`} />
               Todos
             </button>
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold whitespace-nowrap transition-all duration-300 ${
-                  selectedCategory === category
-                    ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-200'
-                    : 'bg-white/80 text-gray-600 hover:bg-white hover:shadow-md border border-pink-100'
-                }`}
-              >
-                <span className="text-base">{getCategoryIcon(category)}</span>
-                {getCategoryLabel(category)}
-              </button>
-            ))}
+            {categories.map((category) => {
+              const config = getCategoryConfig(category)
+              const IconComponent = config.icon
+              return (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold whitespace-nowrap transition-all duration-300 ${
+                    selectedCategory === category
+                      ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-200'
+                      : 'bg-white/80 text-gray-600 hover:bg-white hover:shadow-md border border-pink-100'
+                  }`}
+                >
+                  <IconComponent className={`w-4 h-4 ${selectedCategory === category ? 'text-white' : config.color}`} />
+                  {getCategoryLabel(category)}
+                </button>
+              )
+            })}
           </div>
         </div>
       </div>
@@ -261,21 +282,29 @@ export function MenuPage() {
       <div className="px-4 py-6">
         <div className="max-w-lg mx-auto space-y-4">
           {/* Category Title */}
-          {selectedCategory !== 'all' && (
-            <div className="flex items-center gap-3 mb-6">
-              <span className="text-3xl">{getCategoryIcon(selectedCategory)}</span>
-              <h2 className="text-2xl font-bold text-gray-800">
-                {getCategoryLabel(selectedCategory)}
-              </h2>
-              <span className="px-3 py-1 bg-pink-100 text-pink-600 text-sm font-semibold rounded-full">
-                {filteredProducts.length} {filteredProducts.length === 1 ? 'item' : 'itens'}
-              </span>
-            </div>
-          )}
+          {selectedCategory !== 'all' && (() => {
+            const config = getCategoryConfig(selectedCategory)
+            const IconComponent = config.icon
+            return (
+              <div className="flex items-center gap-3 mb-6">
+                <div className={`p-3 rounded-2xl ${config.bgColor}`}>
+                  <IconComponent className={`w-7 h-7 ${config.color}`} />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  {getCategoryLabel(selectedCategory)}
+                </h2>
+                <span className="px-3 py-1 bg-pink-100 text-pink-600 text-sm font-semibold rounded-full">
+                  {filteredProducts.length} {filteredProducts.length === 1 ? 'item' : 'itens'}
+                </span>
+              </div>
+            )
+          })()}
 
           {filteredProducts.length === 0 ? (
             <div className="glass rounded-3xl p-12 text-center">
-              <div className="text-5xl mb-4">🔍</div>
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+                <Search className="w-8 h-8 text-gray-400" />
+              </div>
               <h3 className="text-lg font-bold text-gray-800 mb-2">Nenhum produto encontrado</h3>
               <p className="text-gray-500">Tente buscar por outro termo</p>
             </div>
