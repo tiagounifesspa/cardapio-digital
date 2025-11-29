@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Check, MapPin, CreditCard, Package } from 'lucide-react'
-import { supabase } from '../lib/supabase'
+import { supabase, supabaseUrl, supabaseAnonKey } from '../lib/supabase'
 import { Header } from '../components/Header'
 import { useCartStore } from '../store/cartStore'
 import { Business } from '../types'
@@ -82,12 +82,23 @@ export function SummaryPage() {
       }
 
       // Chamar Edge Function para processar pedido e enviar WhatsApp
-      const { data: result, error } = await supabase.functions.invoke('process-order', {
-        body: orderData
+      // Usando fetch direto pois o cardápio é público (sem autenticação)
+      const response = await fetch(`${supabaseUrl}/functions/v1/process-order`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+          'apikey': supabaseAnonKey
+        },
+        body: JSON.stringify(orderData)
       })
 
-      if (error) throw error
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Erro ao processar pedido')
+      }
       
+      const result = await response.json()
       const order = result.order
 
       // Clear cart and navigate to success
